@@ -770,8 +770,8 @@ static void Rendtriangle(PolyParam* pp, int vertex_offset, const Vertex &v1, con
 					__m128 mask3 = _mm_cmple_ps(pcy3, pzero);
 					__m128 summary = _mm_or_ps(mask3, _mm_or_ps(mask2, mask1));
 
-					__m128i a = _mm_cmpeq_epi32((__m128i&)summary, (__m128i&)pzero);
-					int msk = _mm_movemask_ps((__m128&)a);
+					__m128i a = _mm_cmpeq_epi32(reinterpret_cast<__m128i>(summary), reinterpret_cast<__m128i>(pzero));
+					int msk = _mm_movemask_ps(reinterpret_cast<__m128>(a));
 
 					if (msk != 0)
 					{
@@ -1164,7 +1164,7 @@ struct softrend : Renderer
 
 	//R coefs should be adjusted to match pixel format
 	INLINE __m128 shuffle_pixel(__m128 v) {
-		return (__m128&)_mm_shuffle_epi8((__m128i&)v, _mm_set_epi8(R(0x80,2,1, 0)));
+		return reinterpret_cast<__m128>(_mm_shuffle_epi8(reinterpret_cast<__m128i>(v), _mm_set_epi8(R(0x80,2,1, 0))));
 	}
 
 	virtual void Present() {
