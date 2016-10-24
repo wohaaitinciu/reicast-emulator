@@ -472,22 +472,30 @@ using namespace std;
 #define likely(x) x
 #define unlikely(x) x
 #else
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)       __builtin_expect((x),0)
+#define likely(x)       __builtin_expect(!!(x),1)
+#define unlikely(x)       __builtin_expect(!!(x),0)
+#endif
+
+#if BUILD_COMPILER==COMPILER_VC
+#define FUNCSIG __FUNCSIG__
+#elif COMPILER_GCC
+#define FUNCSIG __PRETTY_FUNCTION__
+#else
+#define FUNCSIG __FUNCTION__
 #endif
 
 //basic includes
 #include "stdclass.h"
 
-#define EMUERROR(x)( printf("Error in %s:" "%s" ":%d  -> " x "\n", __FILE__,__FUNCTION__ ,__LINE__ ))
-#define EMUERROR2(x,a)(printf("Error in %s:" "%s" ":%d  -> " x "\n)",__FILE__,__FUNCTION__,__LINE__,a))
-#define EMUERROR3(x,a,b)(printf("Error in %s:" "%s" ":%d  -> " x "\n)",__FILE__,__FUNCTION__,__LINE__,a,b))
-#define EMUERROR4(x,a,b,c)(printf("Error in %s:" "%s" ":%d  -> " x "\n",__FILE__,__FUNCTION__,__LINE__,a,b,c))
+#define EMUERROR(fmt,...) printf("Error in %s:" "%s" ":%d  -> " fmt "\n",__FILE__,FUNCSIG,__LINE__,##__VA_ARGS__)
+#define EMUERROR2(fmt,a) EMUERROR(fmt,a)
+#define EMUERROR3(fmt,a,b) EMUERROR(fmt,a,b)
+#define EMUERROR4(fmt,a,b,c) EMUERROR(fmt,a,b,c)
 
-#define EMUWARN(x)(printf(      "Warning in %s:" "%s" ":%d  -> " x "\n"),__FILE__,__FUNCTION__,__LINE__))
-#define EMUWARN2(x,a)(printf(   "Warning in %s:" "%s" ":%d  -> " x "\n"),__FILE__,__FUNCTION__,__LINE__,a))
-#define EMUWARN3(x,a,b)(printf( "Warning in %s:" "%s" ":%d  -> " x "\n"),__FILE__,__FUNCTION__,__LINE__,a,b))
-#define EMUWARN4(x,a,b,c)(printf("Warning in %s:" "%s" ":%d  -> " x "\n"),__FILE__,__FUNCTION__,__LINE__,a,b,c))
+#define EMUWARN(fmt,...) printf("Warning in %s:" "%s" ":%d  -> " fmt "\n"),__FILE__,FUNCSIG,__LINE__,##__VA_ARGS__)
+#define EMUWARN2(fmt,a) EMUWARN(fmt,a)
+#define EMUWARN3(fmt,a,b) EMUWARN(fmt,a,b)
+#define EMUWARN4(fmt,a,b,c) EMUWARN(fmt,a,b,c)
 
 
 #ifndef NO_MMU
@@ -514,8 +522,12 @@ using namespace std;
 #define VER_SHORTNAME	VER_EMUNAME " git" _X_x_X_MMU_VER_STR
 
 
+#if defined _MSC_VER
+#define dbgbreak() __debugbreak()
+#else
 void os_DebugBreak();
-#define dbgbreak os_DebugBreak()
+#define dbgbreak() os_DebugBreak()
+#endif
 
 #if COMPILER_VC==BUILD_COMPILER
 #pragma warning( disable : 4127 4996 /*4244*/)
@@ -524,11 +536,11 @@ void os_DebugBreak();
 #endif
 
 #ifndef STRIP_TEXT
-#define verify(x) if((x)==false){ msgboxf("Verify Failed  : " #x "\n in %s -> %s : %d \n",MBX_ICONERROR,(__FUNCTION__),(__FILE__),__LINE__); dbgbreak;}
-#define die(reason) { msgboxf("Fatal error : %s\n in %s -> %s : %d \n",MBX_ICONERROR,(reason),(__FUNCTION__),(__FILE__),__LINE__); dbgbreak;}
+#define verify(x) if(unlikely(!(x))){ msgboxf("Verify Failed  : " #x "\n in %s -> %s : %d \n",MBX_ICONERROR,(FUNCSIG),(__FILE__),__LINE__); dbgbreak();}
+#define die(reason) { msgboxf("Fatal error : %s\n in %s -> %s : %d \n",MBX_ICONERROR,(reason),(FUNCSIG),(__FILE__),__LINE__); dbgbreak();}
 #else
-#define verify(x) if((x)==false) { dbgbreak; }
-#define die(reason) { dbgbreak; }
+#define verify(x) if(unlikely(!(x))) { dbgbreak(); }
+#define die(reason) { dbgbreak(); }
 #endif
 
 #define fverify verify

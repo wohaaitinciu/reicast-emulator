@@ -228,7 +228,7 @@ bool VramLockedWrite(u8* address)
 					if ((*list)[i])
 					{
 						msgboxf("Error : pvr is supposed to remove lock",MBX_OK);
-						dbgbreak;
+						dbgbreak();
 					}
 
 				}
