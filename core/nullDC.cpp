@@ -45,19 +45,19 @@ int GetFile(char *szFileName, char *szParse=0,u32 flags=0)
 	if (strcmp(szFileName,"null")==0)
 	{
 	#if HOST_OS==OS_WINDOWS
-		OPENFILENAME ofn;
+		OPENFILENAMEA ofn;
 		ZeroMemory( &ofn , sizeof( ofn));
-	ofn.lStructSize = sizeof ( ofn );
-	ofn.hwndOwner = NULL  ;
-	ofn.lpstrFile = szFileName ;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrFilter = "All\0*.*\0\0";
-	ofn.nFilterIndex =1;
-	ofn.lpstrFileTitle = NULL ;
-	ofn.nMaxFileTitle = 0 ;
-	ofn.lpstrInitialDir=NULL ;
-	ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = NULL;
+		ofn.lpstrFile = szFileName;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = MAX_PATH;
+		ofn.lpstrFilter = "All\0*.*\0\0";
+		ofn.nFilterIndex = 1;
+		ofn.lpstrFileTitle = NULL;
+		ofn.nMaxFileTitle = 0;
+		ofn.lpstrInitialDir = NULL;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		if (GetOpenFileNameA(&ofn))
 		{
