@@ -524,6 +524,12 @@ using namespace std;
 
 #if defined _MSC_VER
 #define dbgbreak() __debugbreak()
+#elif HOST_OS==OS_DARWIN
+#if TARGET_IPHONE
+#define dbgbreak() __asm__("trap")
+#elif HOST_OS != OS_LINUX
+#define dbgbreak() __builtin_trap()
+#endif
 #else
 void os_DebugBreak();
 #define dbgbreak() os_DebugBreak()
